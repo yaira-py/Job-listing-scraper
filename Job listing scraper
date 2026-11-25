@@ -1,0 +1,28 @@
+import requests 
+from bs4 import BeautifulSoup
+import csv
+
+url= 'https://realpython.github.io/fake-jobs/'
+
+response= requests.get(url)
+print('Status:', response.status_code)
+
+soup= BeautifulSoup(response.content,'html.parser')
+job_cards= soup.find_all('div',class_='card')
+
+with open('jobs.csv','w', newline='', encoding='utf-8') as file:
+    writer= csv.writer(file)
+
+    writer.writerow(['Title','Company','Location','Date','Apply Link'])
+
+    for card in job_cards:
+        title= card.find('h2',class_='title').text.strip()
+        company= card.find('h3',class_="company").text.strip()
+        location= card.find('p',class_='location').text.strip()
+        date= card.find('time')['datetime']
+        apply_link= card.find_all('a')[1]['href']
+
+        writer.writerow([title,company,location,date,apply_link])
+
+
+print(f'Done {len(job_cards)} found all jobs')
